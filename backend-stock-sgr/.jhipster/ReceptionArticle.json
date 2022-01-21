@@ -1,0 +1,46 @@
+{
+  "name": "ReceptionArticle",
+  "fields": [
+    {
+      "fieldName": "isReception",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "quantite",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "updateAt",
+      "fieldType": "LocalDate"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "article",
+      "otherEntityRelationshipName": "receptionArticle",
+      "relationshipName": "article"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "reception",
+      "otherEntityRelationshipName": "receptionArticle",
+      "relationshipName": "reception",
+      "ownerSide": false
+    }
+  ],
+  "entityTableName": "reception_article",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220118135537"
+}

@@ -1,0 +1,50 @@
+/* You can add global styles to this file, and also import other style files */
+
+
+@import '~ngx-toastr/toastr.css';
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+.mat-flat-button.mat-primary,
+ .mat-raised-button.mat-primary,
+ .mat-fab.mat-primary,
+.mat-mini-fab.mat-primary{
+  background-color: rgb(0, 104, 173) !important;
+  box-shadow: none !important;
+}
+.table-head{
+  color: black !important;
+  background-color: white !important;
+  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+}
+
+.table-header{
+  color: white !important;
+  background-color: rgb(0, 104, 173) !important;
+}
+.shadow-sgr{
+  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+  // background: linear-gradient(90deg, rgba(255,0,239,1) 0%, rgba(0,191,255,1) 100%) !important;
+}
+
+.text-sgr{
+  color: rgb(0, 104, 173) !important;
+}
+
+.btn-active{
+  color: black !important;
+  background-color: rgb(0, 61, 102)!important;
+  border-top-left-radius: 40px !important;
+  border-bottom-left-radius: 40px !important;
+  // box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+}
+
+.sidebar{
+  // background: linear-gradient(90deg, rgba(255,0,239,1) 0%, rgba(0,191,255,1) 100%) !important;
+  background-color: rgb(0, 104, 173) !important;
+}
+
+
+

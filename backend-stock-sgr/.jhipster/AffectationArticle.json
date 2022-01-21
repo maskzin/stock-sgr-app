@@ -1,0 +1,46 @@
+{
+  "name": "AffectationArticle",
+  "fields": [
+    {
+      "fieldName": "isAffectation",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "quantite",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "updateAt",
+      "fieldType": "LocalDate"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "article",
+      "otherEntityRelationshipName": "affectationArticle",
+      "relationshipName": "article"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "affectation",
+      "otherEntityRelationshipName": "affectationArticle",
+      "relationshipName": "affectation",
+      "ownerSide": false
+    }
+  ],
+  "entityTableName": "affectation_article",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220118135538"
+}

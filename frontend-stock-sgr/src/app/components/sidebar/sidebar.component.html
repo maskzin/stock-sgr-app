@@ -1,0 +1,47 @@
+<div class="position-fixed sidebar shadow-sm" style="width: 200px;height: 100%;z-index: 1;">
+  <div class="mb-5 mt-3 mx-2">
+    <img src="assets/images/stock-sgr.png" style="height: 100px;width: auto;" alt="">
+  </div>
+  <div>
+      <a routerLink="/admin/acceuil" (click)="onActiveLink('acceuil')" [ngClass]="{'btn-active': activeLink==='acceuil'}" class="d-block text-decoration-none">
+        <h6 [ngClass]="{'text-success': activeLink==='acceuil'}" class="btn btn-sm text-light d-flex align-items-center" style="font-size: medium;">
+          <mat-icon class="mat-8" style="margin-right:10px">home</mat-icon> Dashboard
+        </h6>
+      </a>
+      <a routerLink="/admin/articles" (click)="onActiveLink('articles')" [ngClass]="{'btn-active': activeLink==='articles'}" class="d-block text-decoration-none">
+        <h6 [ngClass]="{'text-success': activeLink==='articles'}" class="btn text-light btn-sm d-flex align-items-center" style="font-size: medium;">
+          <mat-icon class="mat-8" style="margin-right:10px">article</mat-icon> Articles
+        </h6>
+      </a>
+      <a routerLink="/admin/fournisseurs" (click)="onActiveLink('fournisseurs')" [ngClass]="{'btn-active': activeLink==='fournisseurs'}" class="d-block text-decoration-none">
+        <h6 [ngClass]="{'text-success': activeLink==='fournisseurs'}" class="btn btn-sm text-light d-flex align-items-center" style="font-size: medium;">
+          <mat-icon class="mat-8" style="margin-right:10px">local_shipping</mat-icon> Fournisseurs
+        </h6>
+      </a>
+      <a routerLink="/admin/categories" (click)="onActiveLink('categories')" [ngClass]="{'btn-active': activeLink==='categories'}" class="d-block text-decoration-none">
+        <h6 [ngClass]="{'text-success': activeLink==='categories'}" class="btn btn-sm text-light d-flex align-items-center" style="font-size: medium;">
+          <mat-icon class="mat-8" style="margin-right:10px">category</mat-icon>Catégories
+        </h6>
+      </a>
+      <a routerLink="/admin/employes" (click)="onActiveLink('employee')" [ngClass]="{'btn-active': activeLink==='employee'}" class="d-block text-decoration-none">
+        <h6 [ngClass]="{'text-success': activeLink==='employee'}" class="btn btn-sm text-light d-flex align-items-center" style="font-size: medium;">
+          <mat-icon class="mat-8" style="margin-right:10px">badge</mat-icon>Employés
+        </h6>
+      </a>
+      <a routerLink="/admin/receptions" (click)="onActiveLink('receptions')" [ngClass]="{'btn-active': activeLink==='receptions'}" class="d-block text-decoration-none">
+        <h6 [ngClass]="{'text-success': activeLink==='receptions'}" class="btn btn-sm text-light d-flex align-items-center" style="font-size: medium;">
+          <mat-icon class="mat-8" style="margin-right:10px">call_received</mat-icon>Receptions
+        </h6>
+      </a>
+      <a routerLink="/admin/affectations" (click)="onActiveLink('affectations')" [ngClass]="{'btn-active': activeLink==='affectations'}" class="d-block text-decoration-none">
+        <h6 [ngClass]="{'text-success': activeLink==='affectations'}" class="btn btn-sm text-light d-flex align-items-center" style="font-size: medium;">
+          <mat-icon class="mat-8" style="margin-right:10px">push_pin</mat-icon>Affectations
+        </h6>
+      </a>
+      <a routerLink="/admin/division" (click)="onActiveLink('division')" [ngClass]="{'btn-active': activeLink==='division'}" class="d-block text-decoration-none">
+        <h6 [ngClass]="{'text-success': activeLink==='division'}" class="btn btn-sm text-light d-flex align-items-center" style="font-size: medium;">
+          <mat-icon class="mat-8" style="margin-right:10px">trip_origin</mat-icon>Divisions
+        </h6>
+      </a>
+  </div>
+</div>

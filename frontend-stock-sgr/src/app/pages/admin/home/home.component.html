@@ -1,0 +1,191 @@
+<div class="container-fluid">
+    <div class="row">
+      <!-- Articles -->
+        <div class="col-lg-3 col-md-4 col-sm-6 col-12 my-3">
+            <div class="shadow-sgr rounded d-flex justify-content-center align-items-center" style="height: 60px;">
+                <div><mat-icon class="mat-18 text-sgr" style="font-size:50px">article</mat-icon></div>
+                <div class="container mb-2 mx-2">
+                    <p class="p-0 m-0 text-muted">Articles</p>
+                    <p style="font-size: x-large;font-weight: bolder;" class="p-0 m-0">{{stockArticleCount(articles)}}</p>
+                </div>
+            </div>
+        </div>
+        <!-- Categories -->
+        <div class="col-lg-3 col-md-4 col-sm-6 col-12 my-3">
+          <div class="shadow-sgr rounded d-flex justify-content-center align-items-center" style="height: 60px;">
+              <div><mat-icon class="mat-18 text-sgr" style="font-size:50px">category</mat-icon></div>
+              <div class="container mb-2 mx-2">
+                  <p class="p-0 m-0 text-muted">Catégories</p>
+                  <p style="font-size: x-large;font-weight: bolder;" class="p-0 m-0">{{categories.length}}</p>
+              </div>
+          </div>
+      </div>
+      <!-- Fournisseurs -->
+      <div class="col-lg-3 col-md-4 col-sm-6 col-12 my-3">
+        <div class="shadow-sgr rounded d-flex justify-content-center align-items-center" style="height: 60px;">
+            <div><mat-icon class="mat-18 text-sgr" style="font-size:50px">local_shipping</mat-icon></div>
+            <div class="container mb-2 mx-2">
+                <p class="p-0 m-0 text-muted">Fournisseurs</p>
+                <p style="font-size: x-large;font-weight: bolder;" class="p-0 m-0">{{fournisseurs.length}}</p>
+            </div>
+        </div>
+    </div>
+    <!-- Employés -->
+    <div class="col-lg-3 col-md-4 col-sm-6 col-12 my-3">
+      <div class="shadow-sgr rounded d-flex justify-content-center align-items-center" style="height: 60px;">
+          <div><mat-icon class="mat-18 text-sgr" style="font-size:50px">badge</mat-icon></div>
+          <div class="container mb-2 mx-2">
+              <p class="p-0 m-0 text-muted">Employés</p>
+              <p style="font-size: x-large;font-weight: bolder;" class="p-0 m-0">{{employees.length}}</p>
+          </div>
+      </div>
+    </div>
+
+    <!--  Receptions -->
+    <div class="col-lg-3 col-md-4 col-sm-6 col-12 my-3">
+      <div class="shadow-sgr rounded d-flex justify-content-center align-items-center" style="height: 60px;">
+          <div><mat-icon class="mat-18 text-sgr" style="font-size:50px">call_received</mat-icon></div>
+          <div class="container mb-2 mx-2">
+              <p class="p-0 m-0 text-muted">Receptions</p>
+              <p style="font-size: x-large;font-weight: bolder;" class="p-0 m-0">{{receptions.length}}</p>
+          </div>
+      </div>
+    </div>
+    <!-- Fournisseurs -->
+    <div class="col-lg-3 col-md-4 col-sm-6 col-12 my-3">
+      <div class="shadow-sgr rounded d-flex justify-content-center align-items-center" style="height: 60px;">
+          <div><mat-icon class="mat-18 text-sgr" style="font-size:50px">push_pin</mat-icon></div>
+          <div class="container mb-2 mx-2">
+              <p class="p-0 m-0 text-muted">Affectations</p>
+              <p style="font-size: x-large;font-weight: bolder;" class="p-0 m-0">{{affectations.length}}</p>
+          </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-4 col-sm-6 col-12 my-3">
+      <div class="shadow-sgr rounded d-flex justify-content-center align-items-center" style="height: 60px;">
+          <div><mat-icon class="mat-18 text-sgr" style="font-size:50px">trip_origin</mat-icon></div>
+          <div class="container mb-2 mx-2">
+              <p class="p-0 m-0 text-muted">Divisions</p>
+              <p style="font-size: x-large;font-weight: bolder;" class="p-0 m-0">{{divisions.length}}</p>
+          </div>
+      </div>
+    </div>
+
+    </div>
+</div>
+
+
+<!--
+
+<div class="container-fluid my-5 mat-elevation-z2" *ngIf="currentPage==='list'">
+    <div class="p-4">
+      <mat-form-field class="example-full-width mx-2">
+        <mat-label>Recherche</mat-label>
+        <input matInput>
+      </mat-form-field>
+      <button matTooltip="Actualiser" class="mx-2" mat-icon-button color="primary" aria-label="Example icon button with a vertical three dot icon">
+        <mat-icon>sync</mat-icon>
+      </button>
+      <button matTooltip="Ajouter un forunisseur" (click)="onAdd()" class="mx-2" mat-icon-button color="primary" aria-label="Example icon button with a vertical three dot icon">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+    <table mat-table class="container-fluid rounded" [dataSource]="dataSource">
+      <ng-container matColumnDef="id">
+        <th mat-header-cell class="bg-light text-dark" style="font-size: small;" *matHeaderCellDef> ID. </th>
+        <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+      </ng-container>
+      <ng-container matColumnDef="libelle">
+        <th mat-header-cell class="bg-light text-dark" style="font-size: small;" *matHeaderCellDef> LIBELLÉ D'ARTICLE </th>
+        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+      </ng-container>
+      <ng-container matColumnDef="categorie">
+        <th mat-header-cell class="bg-light text-dark" style="font-size: small;" *matHeaderCellDef> CATÉGORIE D'ARTICLE </th>
+        <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
+      </ng-container>
+      <ng-container matColumnDef="stock">
+        <th mat-header-cell class="bg-light text-dark" style="font-size: small;" *matHeaderCellDef> STOCK D'ARTICLE </th>
+        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell class="bg-light text-dark" style="font-size: small;" *matHeaderCellDef> ACTIONS </th>
+        <td mat-cell class="" *matCellDef="let element">
+          <div class="row">
+            <button matTooltip="Voir" (click)="onSelection(element,'detail')" class="" mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button matTooltip="Modifier" (click)="onSelection(element,'edit')" class="" mat-icon-button color="primary" aria-label="Example icon button with a vertical three dot icon">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button matTooltip="Supprimer" (click)="onDelete(element)" class="" mat-icon-button color="accent" aria-label="Example icon button with a vertical three dot icon">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <mat-paginator [pageSize]="5" [pageSizeOptions]="[5,10,25,50, 100]"></mat-paginator>
+</div>
+
+<div class="container-fluid my-5 mat-elevation-z2 p-3" *ngIf="currentPage==='edit'">
+    <div class="d-flex">
+      <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-icon-button color="primary" aria-label="Example icon button with a vertical three dot icon">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>Edition d'Article</h1>
+    </div>
+</div>
+<div class="container-fluid my-5 mat-elevation-z2 p-3" *ngIf="currentPage==='detail'">
+  <div class="d-flex">
+    <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-icon-button color="primary" aria-label="Example icon button with a vertical three dot icon">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Detail d'Article</h1>
+  </div>
+</div>
+
+<div class="container-fluid my-5 p-3" *ngIf="currentPage==='add'">
+  <div class="d-flex container-fluid flex-column justify-content-center align-items-center">
+    <div class="d-flex container" style="max-width: 45%;">
+      <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-icon-button color="primary" aria-label="Example icon button with a vertical three dot icon">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>Ajout d'Article</h1>
+    </div>
+    <div class="p-3 container d-flex justify-content-center align-items-center">
+      <div class="mat-elevation-z2 p-4" style="max-width: 50%;">
+       <form>
+          <mat-form-field class="example-full-width container mx-2">
+            <mat-label>Nif</mat-label>
+            <input matInput>
+          </mat-form-field>
+          <mat-form-field class="example-full-width container mx-2">
+            <mat-label>Nom</mat-label>
+            <input matInput>
+          </mat-form-field>
+          <mat-form-field class="example-full-width container mx-2">
+            <mat-label>Téléphone</mat-label>
+            <input matInput>
+          </mat-form-field>
+          <mat-form-field class="example-full-width container mx-2">
+            <mat-label>Adresse</mat-label>
+            <input matInput>
+          </mat-form-field>
+          <mat-form-field class="example-full-width container mx-2">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="picker">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+          <div class="d-flex">
+            <button mat-button>Annuler</button>
+            <button mat-button color="primary">Sauvegarder</button>
+          </div>
+       </form>
+      </div>
+    </div>
+  </div>
+</div> -->
