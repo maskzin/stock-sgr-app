@@ -43,7 +43,7 @@ public class Affectation implements Serializable {
         inverseJoinColumns = @JoinColumn(name = "affectation_article_id")
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "article", "affectations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"affectations" }, allowSetters = true)
     private Set<AffectationArticle> affectationArticles = new HashSet<>();
 
     @ManyToOne
