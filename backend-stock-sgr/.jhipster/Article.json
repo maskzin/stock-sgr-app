@@ -1,0 +1,69 @@
+{
+  "name": "Article",
+  "fields": [
+    {
+      "fieldName": "libelleArticle",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "caracteristique",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "niveauAlerte",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "commentaire",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "stock",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "updateAt",
+      "fieldType": "LocalDate"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "receptionArticle",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "receptionArticle"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "affectationArticle",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "affectationArticle"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "affectation",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "affectation"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "categorie",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "categorie"
+    }
+  ],
+  "entityTableName": "article",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220111153210"
+}

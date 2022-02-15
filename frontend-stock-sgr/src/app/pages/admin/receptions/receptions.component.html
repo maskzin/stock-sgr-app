@@ -1,0 +1,443 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="container-fluidz">
+  <div class="container-fluid my-5 px-0" *ngIf="currentPage==='list'">
+    <div class="container p-3">
+        <h2 class="text-muted">Listes des Receptions</h2>
+    </div>
+    <div class=" mat-elevation-z2">
+  <div class="d-flex justify-content-between align-items-center">
+      <div class="p-2">
+        <mat-form-field class="example-full-width mx-2" style="min-width: 40vh;">
+          <mat-label>Rechercher une reception</mat-label>
+          <input matInput name="searchParam" [(ngModel)]="searchParam.query" (keyup)="applyFilter()">
+        </mat-form-field>
+        <button matTooltip="Actualiser" (click)="findAll()" class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+          <mat-icon>sync</mat-icon>
+        </button>
+        <button matTooltip="Ajouter une reception" (click)="onAdd()" class="mx-2" mat-raised-button color="primary" aria-label="Example icon button with a vertical three dot icon">
+          <mat-icon>add</mat-icon> NOUVELLE RECEPTION
+        </button>
+      </div>
+  </div>
+    <table mat-table class="container-fluid rounded" [dataSource]="dataSource">
+      <ng-container matColumnDef="libelle">
+        <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> NUMÉRO CONTRAT</th>
+        <td mat-cell *matCellDef="let element"> {{element?.numContrat}} </td>
+      </ng-container>
+      <ng-container matColumnDef="stock">
+        <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> FOURNISSEUR </th>
+        <td mat-cell *matCellDef="let element"> {{element?.fournisseur?.nom}} </td>
+      </ng-container>
+      <ng-container matColumnDef="telephone">
+        <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> ADRESSE FOURNISSEUR </th>
+        <td mat-cell *matCellDef="let element"> {{element?.fournisseur?.adresse}} </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> ACTIONS </th>
+        <td mat-cell class="" *matCellDef="let element">
+          <div class="row">
+            <button matTooltip="Voir" (click)="onSelection(element,'detail');quantiteArticleByReceptionArticle()" mat-icon-button>
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button matTooltip="Modifier" (click)="onSelection(element,'edit')" mat-icon-button color="primary">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button matTooltip="Supprimer" (click)="onDelete(element)" mat-icon-button color="accent">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell border-0" colspan="7">
+          <div class="container-fluid d-flex justify-content-center align-items-center flex-column">
+                <img src="assets/images/not-found.svg" style="width: 200px;height: 200px;" alt="">
+                <h3>Aucune donnée trouvée</h3>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <mat-paginator *ngIf="receptions.length!==0" [pageSize]="10" [pageSizeOptions]="[10,25,50, 100]"></mat-paginator>
+  </div>
+  </div>
+</div>
+
+<!-- Edit  -->
+<div class="container-fluid my-5 p-3" *ngIf="currentPage==='edit'">
+  <div class="d-flex container-fluid flex-column justify-content-center align-items-center">
+    <div class="d-flex container align-items-center mb-4">
+      <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="mt-3">MODIFICATION DE LA RECEPTION</h1>
+    </div>
+    <div class="p-3 container d-flex justify-content-center align-items-center">
+      <div class="mat-elevation-z2 p-4">
+       <form #editreception="ngForm" name="form">
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Numéro du Contrat</mat-label>
+          <input matInput name="nomreception"  [(ngModel)]="reception.numContrat" required>
+        </mat-form-field>
+
+        <mat-form-field  class="example-full-width container mx-2">
+          <mat-label>Date de la Reception</mat-label>
+          <input matInput [matDatepicker]="picker" [(ngModel)]="reception.dateReception" required name="dateReceptionN">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field  class="example-full-width container mx-2">
+          <mat-label>Date Contrat</mat-label>
+          <input matInput [matDatepicker]="pickerContrat" [(ngModel)]="reception.dateContrat" required name="dateContratN">
+          <mat-datepicker-toggle matSuffix [for]="pickerContrat"></mat-datepicker-toggle>
+          <mat-datepicker #pickerContrat></mat-datepicker>
+        </mat-form-field>
+
+
+
+       <div class="d-flex">
+         <form #add="ngForm">
+          <mat-form-field class="example-full-width col-lg-4 col-md-4 col-sm-4 col-12 container mx-2">
+            <mat-label>Article</mat-label>
+            <mat-select name="articleReception" (closed)="verifieArticleExist()"  [(ngModel)]="receptionArticle.article" required>
+              <div class="container">
+                <div class="rounded-pill shadow-sm border px-3 d-flex justify-content-center align-items-center my-2" style="height: 30px;">
+                  <input matInput name="filterArticle" [(ngModel)]="articleFilter.libelleArticle" placeholder="Rechercher d'article">
+                </div>
+              </div>
+                <mat-option  selected *ngFor="let article of articles | filterBy:articleFilter" [value]="article">
+                  {{article?.libelleArticle}}
+                </mat-option>
+                <mat-option disabled *ngIf="articles.length===0">Aucun article</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field class="example-full-width col-lg-4 col-md-4 col-sm-4 col-12 container mx-2">
+            <mat-label>Nombre</mat-label>
+            <input matInput type="number" name="quantitereception"  [(ngModel)]="receptionArticle.quantite" required>
+          </mat-form-field>
+          <div class="d-inline">
+            <button matTooltip="Retour" [disabled]="add.invalid"  (click)="onAddReceptionArticle()" class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+         </form>
+       </div>
+       <table class="table table-striped container align-middle" *ngIf="receptionArticles.length!==0">
+         <thead class="">
+           <tr>
+             <td class="text-sgr" style="font-weight: 900;">Libellé</td>
+             <td class="text-sgr" style="font-weight: 900;">Quantité</td>
+             <td class="text-sgr" style="font-weight: 900;">Actions</td>
+           </tr>
+         </thead>
+        <tbody class="">
+          <tr *ngFor="let recept of receptionArticles;let i =index">
+            <td>{{recept?.article?.libelleArticle}}</td>
+            <td>{{recept?.quantite}}</td>
+            <td>
+              <button (click)="onDeleteReceptionArticle(i)" mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+                <mat-icon class="mat-18 text-danger">delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+       </table>
+
+
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Employé</mat-label>
+          <mat-select name="receptionreception" multiple  [(ngModel)]="reception.employees" required>
+            <mat-option *ngFor="let employee of employees" [value]="employee">
+              {{employee?.nom+" "+employee?.prenom}}
+            </mat-option>
+            <mat-option disabled *ngIf="employees.length===0">Aucun employé</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Fournisseur</mat-label>
+          <mat-select name="receptionreception"  [(ngModel)]="reception.fournisseur" required>
+            <mat-option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur">
+              {{fournisseur?.nom}}
+            </mat-option>
+            <mat-option disabled *ngIf="fournisseurs.length===0">Aucun forunisseur</mat-option>
+          </mat-select>
+        </mat-form-field>
+          <div class="d-flex">
+            <button class="mx-2" (click)="onClear()" mat-raised-button>Annuler</button>
+            <button class="mx-2" [disabled]="editreception.invalid" (click)="onEditReception()" mat-raised-button color="primary">Modifier</button>
+          </div>
+       </form>
+      </div>
+    </div>
+  </div>
+  </div>
+
+<!-- Detail reception -->
+
+<div class="container-fluid my-5 mat-elevation-z2 p-3" *ngIf="currentPage==='detail'">
+<div class="d-flex flex-column">
+  <div class="container d-flex align-items-center mb-4">
+    <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="mt-3">DESCRIPTION DE LA RECEPTION</h1>
+  </div>
+  <table class="table table-striped align-middle">
+    <tbody class="">
+
+
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Nom du fournisseur </td>
+        <td>{{reception?.fournisseur?.nom}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Téléphone du forunisseur</td>
+        <td>{{reception?.fournisseur?.telehone}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Adresse du fournisseur</td>
+        <td>{{reception?.fournisseur?.adresse}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Numéro du Contrat</td>
+        <td>{{reception?.numContrat}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Date de Contrat</td>
+        <td>{{reception?.dateContrat | date: 'd MMMM y'}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Date de Réception</td>
+        <td>{{reception?.dateReception | date: 'd MMMM y'}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Date de Création</td>
+        <td>{{reception?.createdAt | date: 'd MMMM y'}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Date de Modification</td>
+        <td>{{reception?.updateAt | date: 'd MMMM y'}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Quantite d'Article</td>
+        <td>{{quantiteArticleReceptionArticle}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Nombre d'Article</td>
+        <td>{{reception?.receptionArticles.length}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Articles</td>
+        <td *ngIf="reception?.receptionArticles">
+              <table  class="table table-striped align-middle">
+                <thead class="table-header">
+                  <tr>
+                    <th>Libellé</th>
+                    <th>Quantité</th>
+                    <th>Type</th>
+                    <th>Marque</th>
+                  </tr>
+                </thead>
+                  <tbody>
+                    <tr *ngFor="let recept of reception?.receptionArticles">
+                      <td><a [routerLink]="['/admin/articles/detail/'+recept?.article?.id]">{{recept?.article?.libelleArticle}}</a></td>
+                      <td>{{recept?.quantite}}</td>
+                      <td>{{recept?.article?.type}}</td>
+                      <td>{{recept?.article?.marque?.libelle}}</td>
+
+                    </tr>
+                  </tbody>
+              </table>
+        </td>
+        <td *ngIf="!reception?.receptionArticles">Aucun</td>
+      </tr>
+
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Employés</td>
+        <td *ngIf="reception?.employees">
+              <table  class="table table-striped align-middle">
+                <thead class="table-header">
+                  <tr>
+                    <th class="text-white">Nom & Prenom</th>
+                    <th class="text-white">Téléphone</th>
+                    <th class="text-white">Adresse</th>
+                    <th class="text-white">Division</th>
+                  </tr>
+                </thead>
+                  <tbody>
+                    <tr *ngFor="let empl of reception?.employees">
+                      <td>{{empl?.nom+" "+empl?.prenom}}</td>
+                      <td>{{empl?.telephone}}</td>
+                      <td>{{empl?.adresse}}</td>
+                      <td>{{empl?.division?.nom}}</td>
+                    </tr>
+                  </tbody>
+              </table>
+        </td>
+        <td *ngIf="!reception?.employees">Aucun</td>
+      </tr>
+    </tbody>
+    <!-- FilUpload -->
+  </table>
+  <div class="container-fluid">
+    <h4 class="text-sgr" style="font-weight: bold;">Les pièces jointes</h4>
+    <div class="file-upload  p-2 d-flex align-items-center rounded container-fluid" *ngIf="reception.fileUploads.length!==0">
+      <div *ngIf="reception.fileUploads" class="d-flex align-items-center flex-wrap m-2 container-fluid">
+            <div *ngFor="let fil of reception.fileUploads;let i=index" class="m-1 position-relative" style="cursor: pointer;">
+                <button (click)="onViewPDF(fil)" class="btn btn-sm rounded-circle d-flex justify-content-center align-items-center shadow-none position-absolute bg-primary shadow-sm border-0" style="width: 30px;height: 30px;top:-5px;right: -5px;">
+                  <mat-icon class="mat-18 text-white">visibility</mat-icon>
+                </button>
+                <pdf-viewer *ngIf="fil.type==='application/pdf'" [show-all]="false" [src]="fil.data" [render-text]="true" [original-size]="false" page="page" style="width: 150px;height: 150px;z-index: -1;">
+                </pdf-viewer>
+                <img *ngIf="fileTypes.includes(fil.type)" [src]="fil.data" style="width: 150px;height: 150px;" alt="">
+            </div>
+        </div>
+      </div>
+      <div *ngIf="pdfSrc && pdfSrc.type==='application/pdf'" class="container-fluid">
+        <pdf-viewer [src]="pdfSrc.data" [render-text]="true" [original-size]="false" style="width: 100%; height: 500px"></pdf-viewer>
+      </div>
+      <div *ngIf="pdfSrc && fileTypes.includes(pdfSrc.type)"  class="container-fluid">
+        <img [src]="pdfSrc.data" style="width: 100%; height: 100%"/>
+      </div>
+  </div>
+</div>
+</div>
+
+<!-- AJOUT -->
+
+<div class="container-fluid my-5 p-3" *ngIf="currentPage==='add'">
+<div class="d-flex container-fluid flex-column justify-content-center align-items-center">
+  <div class="d-flex container mb-4">
+    <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="mt-1">NOUVELLE RECEPTION</h1>
+  </div>
+  <div class="p-3 container d-flex justify-content-center align-items-center">
+    <div class="mat-elevation-z2 p-4">
+     <form #addreception="ngForm" name="form">
+      <mat-form-field class="example-full-width container mx-2">
+        <mat-label>Numéro du Contrat</mat-label>
+        <input matInput name="nomreception"  [(ngModel)]="reception.numContrat" required>
+      </mat-form-field>
+
+      <mat-form-field  class="example-full-width container mx-2">
+        <mat-label>Date de la Reception</mat-label>
+        <input matInput [matDatepicker]="picker" [(ngModel)]="reception.dateReception" required name="dateReceptionN">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field  class="example-full-width container mx-2">
+        <mat-label>Date Contrat</mat-label>
+        <input matInput [matDatepicker]="pickerContrat" [(ngModel)]="reception.dateContrat" required name="dateContratN">
+        <mat-datepicker-toggle matSuffix [for]="pickerContrat"></mat-datepicker-toggle>
+        <mat-datepicker #pickerContrat></mat-datepicker>
+      </mat-form-field>
+
+
+
+     <div class="d-flex">
+       <form #add="ngForm">
+        <mat-form-field class="example-full-width col-lg-4 col-md-4 col-sm-4 col-12 container mx-2">
+          <mat-label>Article</mat-label>
+          <mat-select name="articleReception" (closed)="verifieArticleExist()"  [(ngModel)]="receptionArticle.article" required>
+            <div class="container">
+              <div class="rounded-pill shadow-sm border px-3 d-flex justify-content-center align-items-center my-2" style="height: 30px;">
+                <input matInput name="filterArticle" [(ngModel)]="articleFilter.libelleArticle" placeholder="Rechercher d'article">
+              </div>
+            </div>
+              <mat-option *ngFor="let article of articles |filterBy:articleFilter" [value]="article">
+                {{article?.libelleArticle}}
+              </mat-option>
+              <mat-option disabled *ngIf="articles.length===0">Aucun article</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="example-full-width col-lg-4 col-md-4 col-sm-4 col-12 container mx-2">
+          <mat-label>Nombre</mat-label>
+          <input matInput type="number" name="quantitereception"  [(ngModel)]="receptionArticle.quantite" required>
+        </mat-form-field>
+        <div class="d-inline">
+          <button matTooltip="Retour" [disabled]="add.invalid"  (click)="onAddReceptionArticle()" class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+       </form>
+     </div>
+     <table class="table table-striped container align-middle" *ngIf="receptionArticles.length!==0">
+       <thead class="">
+         <tr>
+           <td class="text-sgr" style="font-weight: 900;">Libellé</td>
+           <td class="text-sgr" style="font-weight: 900;">Quantité</td>
+           <td class="text-sgr" style="font-weight: 900;">Actions</td>
+         </tr>
+       </thead>
+      <tbody class="">
+        <tr *ngFor="let recept of receptionArticles;let i =index">
+          <td>{{recept?.article?.libelleArticle}}</td>
+          <td>{{recept?.quantite}}</td>
+          <td>
+            <button (click)="onDeleteReceptionArticle(i)" mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+              <mat-icon class="mat-18 text-danger">delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+     </table>
+     <div class="container-fluid my-3 position-relative">
+      <input type="file" #fileUplaod class="d-none" name="fichiers[]" (change)="processWebImage($event)"/>
+      <button mat-mini-fab matTooltip="Charger un fichier" color="primary" class="upload-btn"
+            (click)="onSelectedFile()">
+              <mat-icon>{{files.length===0?'attach_file':'add'}}</mat-icon>
+          </button>
+      <div class="file-upload mat-elevation-z1 p-2 d-flex align-items-center rounded" *ngIf="files.length!==0">
+          <div *ngIf="file" class="d-flex align-items-center m-2">
+              <div *ngFor="let fil of files;let i=index" class="mx-2 position-relative" style="cursor: pointer;">
+               <button (click)="onRemoveFile(i)" class="btn btn-sm rounded-circle d-flex justify-content-center align-items-center shadow-none position-absolute bg-danger shadow-sm border-0" style="width: 30px;height: 30px;top:-5px;right: -5px;">
+                  <mat-icon class="mat-18 text-white">close</mat-icon>
+               </button>
+                <pdf-viewer  (click)="onViewPDF(fil)" *ngIf="fil.type==='application/pdf'" [show-all]="false" [src]="fil.data" [render-text]="true" [original-size]="false" page="page" style="width: 150px;height: 150px;z-index: -1;">
+
+                </pdf-viewer>
+                <img *ngIf="fileTypes.includes(fil.type)" (click)="onViewPDF(fil)" [src]="fil.data" style="width: 150px;height: 150px;" alt="">
+              </div>
+          </div>
+      </div>
+    </div>
+    <div *ngIf="pdfSrc && pdfSrc.type==='application/pdf'">
+      <pdf-viewer [src]="pdfSrc.data" [render-text]="true" [original-size]="false" style="width: 100%; height: 500px"></pdf-viewer>
+    </div>
+    <div *ngIf="pdfSrc && fileTypes.includes(pdfSrc.type)">
+      <img [src]="pdfSrc.data" style="width: 100%; height: 100%"/>
+    </div>
+
+
+      <mat-form-field class="example-full-width container mx-2">
+        <mat-label>Employé</mat-label>
+        <mat-select name="receptionEmploye" multiple  [(ngModel)]="reception.employees" required>
+          <mat-option *ngFor="let employee of employees" [value]="employee">
+            {{employee?.nom+" "+employee?.prenom}}
+          </mat-option>
+          <mat-option disabled *ngIf="employees.length===0">Aucun employé</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="example-full-width container mx-2">
+        <mat-label>Fournisseur</mat-label>
+        <mat-select name="receptionFournisseur"  [(ngModel)]="reception.fournisseur" required>
+          <mat-option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur">
+            {{fournisseur?.nom}}
+          </mat-option>
+          <mat-option disabled *ngIf="fournisseurs.length===0">Aucun forunisseur</mat-option>
+        </mat-select>
+      </mat-form-field>
+        <div class="d-flex">
+          <button class="mx-2" mat-raised-button (click)="onClear()">Annuler</button>
+          <button class="mx-2" [disabled]="addreception.invalid" (click)="onSubmitReception()" mat-raised-button color="primary">Sauvegarder</button>
+        </div>
+     </form>
+    </div>
+  </div>
+</div>
+</div>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+    <!--
+        Added the constraints for entity Affectation.
+    -->
+    <changeSet id="20220111153216-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="affectation_id"
+                                 baseTableName="rel_affectation__affectation_article"
+                                 constraintName="fk_rel_affectation__affectation_article__affectation_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="affectation"/>
+
+        <addForeignKeyConstraint baseColumnNames="affectation_article_id"
+                                 baseTableName="rel_affectation__affectation_article"
+                                 constraintName="fk_rel_affectation__affectation_article__affectation_article_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="affectation_article"/>
+
+        <addForeignKeyConstraint baseColumnNames="employee_id"
+                                 baseTableName="affectation"
+                                 constraintName="fk_affectation__employee_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="employee"/>
+
+        <addForeignKeyConstraint baseColumnNames="article_id"
+                                 baseTableName="affectation"
+                                 constraintName="fk_affectation__article_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="article"/>
+    </changeSet>
+</databaseChangeLog>

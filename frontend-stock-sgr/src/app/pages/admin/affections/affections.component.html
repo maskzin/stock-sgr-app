@@ -1,0 +1,474 @@
+<ngx-loading [show]="loading" [config]="{zIndex:'2000'}"></ngx-loading>
+<div class="container-fluidz">
+  <div class="container-fluid my-5 px-0" *ngIf="currentPage==='list'">
+    <div class="container p-3">
+        <h2 class="text-muted">Listes des Affectations</h2>
+    </div>
+    <div class=" mat-elevation-z2">
+  <mat-tab-group animationDuration="0ms" [selectedIndex]="indexOfTabs" (selectedTabChange)="onSelectedTabs($event)" class="my-2">
+    <mat-tab label="Les Affectations" (click)="findAll()">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="p-2 mt-3">
+          <mat-form-field class="example-full-width mx-2" style="min-width: 40vh;">
+            <mat-label>Rechercher une affectation</mat-label>
+            <input matInput name="searchParam" [(ngModel)]="searchParam.query" (keyup)="applyFilter()">
+          </mat-form-field>
+          <button matTooltip="Actualiser" (click)="findAll()" class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+            <mat-icon>sync</mat-icon>
+          </button>
+          <button matTooltip="NOUVELLE AFFECTATION / RÉAFFECTATION" (click)="onAdd()" class="mx-2" mat-raised-button color="primary" aria-label="Example icon button with a vertical three dot icon">
+            <mat-icon>add</mat-icon> AFFECTATION
+          </button>
+        </div>
+      </div>
+      <table  mat-table class="container-fluid rounded" [dataSource]="dataSource">
+        <ng-container matColumnDef="categorie">
+          <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> NOM & PRENOM EMPLOYÉ </th>
+          <td mat-cell *matCellDef="let element"> {{element?.externe? element?.affectant:element?.employee?.nom+" "+element?.employee?.prenom}} </td>
+        </ng-container>
+        <ng-container matColumnDef="externe">
+          <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> STRUCTURE </th>
+          <td mat-cell *matCellDef="let element"> {{element?.externe?"EXTERNE":"CAISFF"}} </td>
+        </ng-container>
+        <ng-container matColumnDef="affectation">
+          <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> STATUS </th>
+          <td mat-cell *matCellDef="let element"> {{element?.validAt}} </td>
+        </ng-container>
+        <ng-container matColumnDef="stock">
+          <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> DATE D'AFFECTATION</th>
+          <td mat-cell *matCellDef="let element"> {{element?.dateAffectation |date:'d MMMM y'}} </td>
+        </ng-container>
+        <ng-container matColumnDef="telephone">
+          <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> DATE DE CREATION </th>
+          <td mat-cell *matCellDef="let element"> {{element?.createdAt|date:'d MMMM y'}}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> ACTIONS </th>
+          <td mat-cell class="" *matCellDef="let element">
+            <div class="row">
+              <button matTooltip="Voir" (click)="onSelection(element,'detail')" class="" mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button matTooltip="Réaffectation" (click)="onSelection(element,'edit')" class="" mat-icon-button color="primary" aria-label="Example icon button with a vertical three dot icon">
+                <mat-icon>swap_horiz</mat-icon>
+              </button>
+              <!-- <button matTooltip="Supprimer" (click)="onDelete(element)" class="" mat-icon-button color="accent" aria-label="Example icon button with a vertical three dot icon">
+                <mat-icon>delete</mat-icon>
+              </button> -->
+            </div>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell border-0" colspan="7">
+            <div class="container-fluid d-flex justify-content-center align-items-center flex-column">
+                  <img src="assets/images/not-found.svg" style="width: 200px;height: 200px;" alt="">
+                  <h3>Aucune donnée trouvée</h3>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <mat-paginator *ngIf="affectations.length!==0" [pageSize]="10" [pageSizeOptions]="[10,25,50, 100]"></mat-paginator>
+    </mat-tab>
+    <mat-tab label="Historiques d'Affectation">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="p-2 mt-3">
+            <mat-form-field class="example-full-width mx-2" style="min-width: 40vh;">
+              <mat-label>Rechercher une affectation</mat-label>
+              <input matInput name="searchParam" [(ngModel)]="searchParam.query" (keyup)="applyFilter()">
+            </mat-form-field>
+            <button matTooltip="Actualiser" (click)="findAllAffectationsHistorique()" class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+              <mat-icon>sync</mat-icon>
+            </button>
+          </div>
+        </div>
+        <table  mat-table class="container-fluid rounded" [dataSource]="dataSource">
+          <ng-container matColumnDef="categorie">
+            <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> NOM & PRENOM EMPLOYÉ </th>
+            <td mat-cell *matCellDef="let element"> {{element?.externe? element?.affectant:element?.employee?.nom+" "+element?.employee?.prenom}} </td>
+          </ng-container>
+          <ng-container matColumnDef="externe">
+            <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> STRUCTURE </th>
+            <td mat-cell *matCellDef="let element"> {{element?.externe?"EXTERNE":"CAISFF"}} </td>
+          </ng-container>
+          <ng-container matColumnDef="affectation">
+            <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> STATUS </th>
+            <td mat-cell *matCellDef="let element"> {{element?.validAt}} </td>
+          </ng-container>
+          <ng-container matColumnDef="stock">
+            <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> DATE D'AFFECTATION</th>
+            <td mat-cell *matCellDef="let element"> {{element?.dateAffectation |date:'d MMMM y'}} </td>
+          </ng-container>
+          <ng-container matColumnDef="telephone">
+            <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> DATE DE CREATION </th>
+            <td mat-cell *matCellDef="let element"> {{element?.createdAt|date:'d MMMM y'}}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> ACTIONS </th>
+            <td mat-cell class="" *matCellDef="let element">
+              <div class="row">
+                <button matTooltip="Voir" (click)="onSelection(element,'detail')" class="" mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell border-0" colspan="7">
+              <div class="container-fluid d-flex justify-content-center align-items-center flex-column">
+                    <img src="assets/images/not-found.svg" style="width: 200px;height: 200px;" alt="">
+                    <h3>Aucune donnée trouvée</h3>
+              </div>
+            </td>
+          </tr>
+        </table>
+        <mat-paginator *ngIf="affectations.length!==0" [pageSize]="10" [pageSizeOptions]="[10,25,50, 100]"></mat-paginator>
+    </mat-tab>
+  </mat-tab-group>
+
+  </div>
+  </div>
+</div>
+
+<!-- Detail affectation -->
+
+<div class="container-fluid my-5 mat-elevation-z2 p-3" *ngIf="currentPage==='detail'">
+<div class="d-flex flex-column">
+  <div class="container d-flex align-items-center mb-4">
+    <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="mt-3">DESCRIPTION DE L'AFFECTATION</h1>
+  </div>
+  <table class="table table-striped align-middle">
+    <tbody class="">
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Nom & Prenom de l'employé</td>
+        <td>{{affectation?.externe? affectation?.affectant:affectation?.employee?.nom+" "+affectation?.employee?.prenom}}</td>
+      </tr>
+      <tr *ngIf="affectation?.externe===true">
+        <td class="text-sgr" style="font-weight: 900;">Structure</td>
+        <td>{{affectation?.structure}}</td>
+      </tr>
+      <tr *ngIf="affectation?.externe===false">
+        <td class="text-sgr" style="font-weight: 900;">Téléphone de l'employé</td>
+        <td>{{affectation?.employee?.telephone}}</td>
+      </tr>
+      <tr  *ngIf="affectation?.externe===false">
+        <td class="text-sgr" style="font-weight: 900;">Division de l'employé</td>
+        <td>{{affectation?.employee?.division?.nom}}</td>
+      </tr>
+      <tr  *ngIf="affectation?.externe===false">
+        <td class="text-sgr" style="font-weight: 900;">Adresse de l'employé</td>
+        <td>{{affectation?.employee?.adresse}}</td>
+      </tr>
+      <!-- FOURNISSEUR -->
+
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Quantité Totale</td>
+        <td>{{affectation?.quantite}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Date d'Affectation'</td>
+        <td>{{affectation?.dateAffectation | date:'d MMMM y'}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Date de Création</td>
+        <td>{{affectation?.createdAt | date:'d MMMM y'}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Date de Modification</td>
+        <td>{{affectation?.updateAt | date:'d MMMM y'}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Articles</td>
+        <td *ngIf="affectation?.affectationArticles">
+              <table  class="table table-striped align-middle">
+                <thead class="table-header">
+                  <tr>
+                    <th>Libellé</th>
+                    <th>Type</th>
+                    <th>Ref.</th>
+                    <th>Quantité</th>
+                    <th>Date fin d'affectation</th>
+                    <th *ngIf="indexOfTabs===0">METTER DANS STOCK</th>
+                    <th *ngIf="indexOfTabs===1">Etat d'Affectation</th>
+                  </tr>
+                </thead>
+                  <tbody>
+                      <tr *ngFor="let affect of affectation?.affectationArticles">
+                        <td>{{affect?.article?.libelleArticle}}</td>
+                        <td>{{affect?.article?.type}}</td>
+                        <td>{{affect?.reference===null?'----':affect?.reference}}</td>
+                        <td>{{affect?.quantite}}</td>
+                        <td>{{affect?.validAt===null?'EN COURS': affect?.validAt | date:'d MMMM y' }}</td>
+                        <td *ngIf="indexOfTabs===0">
+                          <button (click)="onMettreDansStock(affect)" matTooltip="Liberer cet article"  mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+                            <mat-icon class="mat-18 text-success">unarchive</mat-icon>
+                          </button>
+                        </td>
+                        <td *ngIf="indexOfTabs===1">
+                            <span *ngIf="affect.validAt===null" class="badge bg-success rounded-pill">Nouvelle</span>
+                            <span *ngIf="affect.validAt!==null" class="badge bg-danger rounded-pill">Réaffecté</span>
+                        </td>
+
+                      </tr>
+                  </tbody>
+              </table>
+        </td>
+        <td *ngIf="!affectation?.affectationArticles">Aucun article</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="container-fluid">
+    <h4 class="text-sgr" style="font-weight: bold;">Les pièces jointes</h4>
+    <div class="file-upload  p-2 d-flex align-items-center rounded container-fluid" *ngIf="affectation.fileUploads.length!==0">
+      <div *ngIf="affectation.fileUploads" class="d-flex align-items-center flex-wrap m-2 container-fluid">
+            <div *ngFor="let fil of affectation.fileUploads;let i=index" class="m-1 position-relative" style="cursor: pointer;">
+                <button (click)="onViewPDF(fil)" class="btn btn-sm rounded-circle d-flex justify-content-center align-items-center shadow-none position-absolute bg-primary shadow-sm border-0" style="width: 30px;height: 30px;top:-5px;right: -5px;">
+                  <mat-icon class="mat-18 text-white">visibility</mat-icon>
+                </button>
+                <pdf-viewer *ngIf="fil.type==='application/pdf'" [show-all]="false" [src]="fil.data" [render-text]="true" [original-size]="false" page="page" style="width: 150px;height: 150px;z-index: -1;">
+                </pdf-viewer>
+                <img *ngIf="fileTypes.includes(fil.type)" [src]="fil.data" style="width: 150px;height: 150px;" alt="">
+            </div>
+        </div>
+      </div>
+      <div *ngIf="pdfSrc && pdfSrc.type==='application/pdf'" class="container-fluid">
+        <pdf-viewer [src]="pdfSrc.data" [render-text]="true" [original-size]="false" style="width: 100%; height: 500px"></pdf-viewer>
+      </div>
+      <div *ngIf="pdfSrc && fileTypes.includes(pdfSrc.type)"  class="container-fluid">
+        <img [src]="pdfSrc.data" style="width: 100%; height: 100%"/>
+      </div>
+  </div>
+</div>
+</div>
+
+<!-- EDIT START -->
+<div class="container-fluid my-5 p-3" *ngIf="currentPage==='edit'">
+  <div class="d-flex container-fluid flex-column justify-content-center align-items-center">
+    <div class="d-flex container mb-4">
+      <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="mt-1">NOUVELLE AFFECTATION</h1>
+    </div>
+    <div class="p-3 container d-flex justify-content-center align-items-center">
+      <div class="mat-elevation-z2 p-4 container">
+       <form #addaffectation="ngForm" name="form" class="container">
+          <mat-form-field class="example-full-width container mx-2">
+            <mat-label>Date d'Affectation</mat-label>
+            <input matInput [(ngModel)]="affectation.dateAffectation" required name="dateAffectationP" [matDatepicker]="picker">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <div class="container">
+            <mat-form-field class="container-fluid mx-2">
+              <mat-label>Articles Affectés</mat-label>
+              <mat-select name="articleAffectes[]" multiple  [(ngModel)]="affectationArticles" required>
+                <div class="container">
+                  <div class="rounded-pill shadow-sm border px-3 d-flex justify-content-center align-items-center my-2" style="height: 30px;">
+                    <input matInput name="filterArticle" [(ngModel)]="affectationValidsFilter.reference" placeholder="Rechercher d'article">
+                  </div>
+                </div>
+                  <mat-option *ngFor="let affValids of affectation.affectationArticles|filterBy:affectationValidsFilter" [value]="affValids">
+                    {{affValids?.article?.libelleArticle+(affValids?.reference?" .Ref : "+affValids?.reference:'')}}
+                  </mat-option>
+                  <mat-option disabled *ngIf="affectationArticleValids.length===0">Aucun articles Affectés</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field class="example-full-width container mx-2">
+            <mat-label>Affecté à</mat-label>
+            <mat-select name="isExterne" [(ngModel)]="affectation.externe" required>
+              <mat-option [value]="false">CAISFF</mat-option>
+              <mat-option [value]="true">EXTERNE</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+
+          <mat-form-field *ngIf="affectation.externe===false" class="example-full-width container mx-2">
+            <mat-label>Employé</mat-label>
+            <mat-select name="affectationaffectation"  [(ngModel)]="affectation.employee" required>
+              <mat-option  *ngFor="let employee of employees" [value]="employee">
+                {{employee?.nom+" "+employee?.prenom}}
+              </mat-option>
+              <mat-option *ngIf="employees.length===0" disabled>Aucun employé</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <div *ngIf="affectation.externe===true" class="container-fluid">
+            <mat-form-field class="example-full-width ccontainer mx-2">
+              <mat-label>Nom de la Structure</mat-label>
+              <input matInput type="text" name="structureNew" [(ngModel)]="affectation.structure"  required>
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width ccontainer mx-2">
+              <mat-label>Nom de l'Affectant</mat-label>
+              <input matInput type="text" name="affectantNew" [(ngModel)]="affectation.affectant"  required>
+            </mat-form-field>
+          </div>
+          <div class="d-flex py-4">
+            <button class="mx-2" mat-raised-button (click)="onClear()">Annuler</button>
+            <button class="mx-2" [disabled]="addaffectation.invalid" (click)="onSubmitAffectation()" mat-raised-button color="primary">Sauvegarder</button>
+          </div>
+       </form>
+      </div>
+    </div>
+  </div>
+  </div>
+<!-- EDIT END -->
+
+
+<!-- AJOUT -->
+
+<div class="container-fluid my-5 p-3" *ngIf="currentPage==='add'">
+<div class="d-flex container-fluid flex-column justify-content-center align-items-center">
+  <div class="d-flex container mb-4">
+    <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="mt-1">NOUVELLE AFFECTATION</h1>
+  </div>
+  <div class="p-3 container d-flex justify-content-center align-items-center">
+    <div class="mat-elevation-z2 p-4 container">
+     <form #addaffectation="ngForm" name="form" class="container">
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Date d'Affectation</mat-label>
+          <input matInput [(ngModel)]="affectation.dateAffectation" required name="dateAffectationP" [matDatepicker]="picker">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <div>
+        <div class="d-flex">
+          <form #add="ngForm" class="d-flex">
+           <mat-form-field class="container-fluid mx-2">
+             <mat-label>Article</mat-label>
+             <mat-select name="articleReception"  [(ngModel)]="affectationArticle.article" [required]="affectationArticles.length===0">
+               <div class="container">
+                 <div class="rounded-pill shadow-sm border px-3 d-flex justify-content-center align-items-center my-2" style="height: 30px;">
+                   <input matInput name="filterArticle" [(ngModel)]="affectationFilter.libelleArticle" placeholder="Rechercher d'article">
+                 </div>
+               </div>
+                 <mat-option *ngFor="let article of articles |filterBy:affectationFilter" [value]="article">
+                   {{article?.libelleArticle}}
+                 </mat-option>
+                 <mat-option disabled *ngIf="articles.length===0">Aucun article</mat-option>
+             </mat-select>
+           </mat-form-field>
+           <div class="" *ngIf="affectationArticle">
+            <mat-form-field *ngIf="affectationArticle?.article?.type==='CONSOMMABLE'" class="example-full-width ccontainer mx-2">
+              <mat-label>Nombre</mat-label>
+              <input matInput type="number" name="quantitereception" min="1" [(ngModel)]="affectationArticle.quantite"  required>
+            </mat-form-field>
+            <mat-form-field *ngIf="affectationArticle?.article?.type==='DURABLE'" class="example-full-width container mx-2">
+             <mat-label>Reférence</mat-label>
+             <input matInput type="text" name="referencereAffectation" [(ngModel)]="affectationArticle.reference" required>
+           </mat-form-field>
+           </div>
+            <span *ngIf="affectationArticle.article">
+                <span *ngIf="(affectationArticle?.article?.niveauAlerte) < (affectationArticle?.article?.stock<=0 ?0 :affectationArticle?.article?.stock)" class="badge bg-success rounded-pill">STOCK: {{affectationArticle?.article?.stock<0 ?0 :affectationArticle?.article?.stock}}</span>
+                <span *ngIf="affectationArticle?.article?.niveauAlerte > (affectationArticle?.article?.stock<0 ?0 :affectationArticle?.article?.stock)" class="badge bg-danger rounded-pill">STOCK: {{affectationArticle?.article?.stock<0 ?0 :affectationArticle?.article?.stock}}</span>
+            </span>
+           <div class="d-inline">
+             <button matTooltip="Retour" [disabled]="add.invalid"  (click)="onAddReceptionArticle()" class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+               <mat-icon>add</mat-icon>
+             </button>
+           </div>
+          </form>
+        </div>
+        <table class="table table-striped container align-middle" *ngIf="affectationArticles.length!==0">
+          <thead class="">
+            <tr>
+              <td class="text-sgr" style="font-weight: 900;">Libellé</td>
+              <td class="text-sgr" style="font-weight: 900;">Quantité</td>
+              <td class="text-sgr" style="font-weight: 900;">Ref.</td>
+              <td class="text-sgr" style="font-weight: 900;">Actions</td>
+            </tr>
+          </thead>
+         <tbody class="">
+           <tr *ngFor="let recept of affectationArticles;let i =index">
+             <td>{{recept?.article?.libelleArticle}}</td>
+             <td>{{recept?.quantite}}</td>
+             <td>{{!recept?.reference?'RIEN':recept?.reference}}</td>
+             <td>
+               <button (click)="onDeleteReceptionArticle(i)" mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+                 <mat-icon class="mat-18 text-danger">delete</mat-icon>
+               </button>
+             </td>
+           </tr>
+         </tbody>
+        </table>
+        </div>
+
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Affecté à</mat-label>
+          <mat-select name="isExterne" [(ngModel)]="affectation.externe" required>
+            <mat-option [value]="false">CAISFF</mat-option>
+            <mat-option [value]="true">EXTERNE</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+
+        <mat-form-field *ngIf="affectation.externe===false" class="example-full-width container mx-2">
+          <mat-label>Employé</mat-label>
+          <mat-select name="affectationaffectation"  [(ngModel)]="affectation.employee" required>
+            <mat-option *ngFor="let employee of employees" [value]="employee">
+              {{employee?.nom+" "+employee?.prenom}}
+            </mat-option>
+            <mat-option *ngIf="employees.length===0" disabled>Aucun employé</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div *ngIf="affectation.externe===true" class="container-fluid">
+          <mat-form-field class="example-full-width ccontainer mx-2">
+            <mat-label>Nom de la Structure</mat-label>
+            <input matInput type="text" name="structureNew" [(ngModel)]="affectation.structure"  required>
+          </mat-form-field>
+
+          <mat-form-field class="example-full-width ccontainer mx-2">
+            <mat-label>Nom de l'Affectant</mat-label>
+            <input matInput type="text" name="affectantNew" [(ngModel)]="affectation.affectant"  required>
+          </mat-form-field>
+        </div>
+
+        <div class="container-fluid my-3 position-relative">
+          <input type="file" #fileUplaod class="d-none" name="fichiers[]" (change)="processWebImage($event)"/>
+          <button mat-mini-fab matTooltip="Charger un fichier" color="primary" class="upload-btn"
+                (click)="onSelectedFile()">
+                  <mat-icon>{{files.length===0?'attach_file':'add'}}</mat-icon>
+              </button>
+          <div class="file-upload mat-elevation-z1 p-2 d-flex align-items-center rounded" *ngIf="files.length!==0">
+              <div *ngIf="file" class="d-flex align-items-center m-2">
+                  <div *ngFor="let fil of files;let i=index" class="mx-2 position-relative" style="cursor: pointer;">
+                   <button (click)="onRemoveFile(i)" class="btn btn-sm rounded-circle d-flex justify-content-center align-items-center shadow-none position-absolute bg-danger shadow-sm border-0" style="width: 30px;height: 30px;top:-5px;right: -5px;">
+                      <mat-icon class="mat-18 text-white">close</mat-icon>
+                   </button>
+                    <pdf-viewer  (click)="onViewPDF(fil)" *ngIf="fil.type==='application/pdf'" [show-all]="false" [src]="fil.data" [render-text]="true" [original-size]="false" page="page" style="width: 150px;height: 150px;z-index: -1;">
+
+                    </pdf-viewer>
+                    <img *ngIf="fileTypes.includes(fil.type)" (click)="onViewPDF(fil)" [src]="fil.data" style="width: 150px;height: 150px;" alt="">
+                  </div>
+              </div>
+          </div>
+        </div>
+        <div *ngIf="pdfSrc && pdfSrc.type==='application/pdf'">
+          <pdf-viewer [src]="pdfSrc.data" [render-text]="true" [original-size]="false" style="width: 100%; height: 500px"></pdf-viewer>
+        </div>
+        <div *ngIf="pdfSrc && fileTypes.includes(pdfSrc.type)">
+          <img [src]="pdfSrc.data" style="width: 100%; height: 100%"/>
+        </div>
+        <div class="d-flex py-4">
+          <button class="mx-2" mat-raised-button (click)="onClear()">Annuler</button>
+          <button class="mx-2" [disabled]="addaffectation.invalid" (click)="onSubmitAffectation()" mat-raised-button color="primary">Sauvegarder</button>
+        </div>
+     </form>
+    </div>
+  </div>
+</div>
+</div>

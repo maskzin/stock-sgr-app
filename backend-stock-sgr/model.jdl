@@ -1,0 +1,110 @@
+
+entity Article {
+	libelleArticle String
+    caracteristique String
+    niveauAlerte Integer
+    commentaire String
+    stock Long
+    createdAt LocalDate
+    updateAt LocalDate
+}
+
+entity Fournisseur {
+	nom String
+    nif String
+    telehone String
+    adresse String
+    createdAt LocalDate
+    updateAt LocalDate
+
+}
+
+entity Employee{
+	nom String
+    prenom String
+    createdAt LocalDate
+    updateAt LocalDate
+}
+
+entity Categorie{
+	nom String
+    createdAt LocalDate
+    updateAt LocalDate
+}
+
+entity Division{
+	nom String
+    createdAt LocalDate
+    updateAt LocalDate
+}
+
+entity Reception{
+	numContrat String
+    dateContrat LocalDate
+    dateReception LocalDate
+    createdAt LocalDate
+    updateAt LocalDate
+
+}
+
+entity Affectation{
+    dateAffectation LocalDate
+	quantite Integer
+
+    createdAt LocalDate
+    updateAt LocalDate
+
+}
+
+
+entity ReceptionArticle{
+    isReception Boolean
+    quantite Integer
+    createdAt LocalDate
+    updateAt LocalDate
+}
+
+entity AffectationArticle{
+    isAffectation Boolean
+    quantite Integer
+    createdAt LocalDate
+    updateAt LocalDate
+}
+
+
+entity Marque{
+	libelle String
+}
+
+relationship OneToMany {
+	Categorie {article} to Article
+    Division {Employee} to Employee
+
+    Article{ReceptionArticle} to ReceptionArticle
+    //Reception{ReceptionArticle} to ReceptionArticle
+
+    Article{AffectationArticle} to AffectationArticle
+    
+
+
+
+    Employee{Affectation} to Affectation
+    Article{Affectation} to Affectation
+
+    //Employee{Reception} to Reception
+    Fournisseur{Reception} to Reception
+
+}
+
+/**
+ * Many to many relationship.
+ */
+relationship ManyToMany {
+
+    Reception to Employee
+    Reception to ReceptionArticle
+    Affectation to AffectationArticle
+}
+
+
+service * with serviceImpl

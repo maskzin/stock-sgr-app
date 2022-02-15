@@ -1,0 +1,306 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="container-fluidz">
+  <div class="container-fluid my-5 px-0" *ngIf="currentPage==='list'">
+    <div class="container p-3">
+        <h2 class="text-muted">Listes des Articles</h2>
+    </div>
+    <div class=" mat-elevation-z2">
+  <div class="d-flex justify-content-between align-items-center">
+      <div class="p-2">
+        <mat-form-field class="example-full-width mx-2" style="min-width: 30vh;">
+          <mat-label>Rechercher un article</mat-label>
+          <input matInput name="searchParam" [(ngModel)]="searchParam.query" (keyup)="applyFilter($event)">
+        </mat-form-field>
+        <mat-form-field class="example-full-width mx-2">
+          <mat-label>Critère par catégorie</mat-label>
+          <mat-select name="receptionemployee" (closed)="findAllArticleByCategorieId()"  [(ngModel)]="searchParam.id">
+              <div class="container">
+                  <div class="rounded-pill shadow-sm border px-3 d-flex justify-content-center align-items-center my-2" style="height: 30px;">
+                    <input matInput name="filterCat" [(ngModel)]="catFilter.nom" placeholder="Rechercher catégorie">
+                  </div>
+                  <mat-option (click)="findAll()">Tous</mat-option>
+                  <mat-option *ngFor="let div of categories |filterBy : catFilter" [value]="div.id">
+                    {{div?.nom}}
+                  </mat-option>
+                  <mat-option *ngIf="categories.length===0" disabled>Aucune catégorie</mat-option>
+              </div>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="example-full-width mx-2">
+          <mat-label>Critère par Marque</mat-label>
+          <mat-select name="marqueTri" (closed)="findAllArticleByMarqueId()"  [(ngModel)]="searchParam.marqueId">
+              <div class="container">
+                  <div class="rounded-pill shadow-sm border px-3 d-flex justify-content-center align-items-center my-2" style="height: 30px;">
+                    <input matInput name="filterMarque" [(ngModel)]="marqueFilter.nom" placeholder="Rechercher catégorie">
+                  </div>
+                  <mat-option (click)="findAll()">Tous</mat-option>
+                  <mat-option *ngFor="let marque of marques |filterBy : marqueFilter" [value]="marque.id">
+                    {{marque?.libelle}}
+                  </mat-option>
+                  <mat-option *ngIf="marques.length===0" disabled>Aucune marque</mat-option>
+              </div>
+          </mat-select>
+        </mat-form-field>
+        <button matTooltip="Actualiser" (click)="findAll()" class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+          <mat-icon>sync</mat-icon>
+        </button>
+        <button matTooltip="Ajouter un nouvel article" (click)="onAdd()" class="mx-2" mat-raised-button color="primary" aria-label="Example icon button with a vertical three dot icon">
+          <mat-icon>add</mat-icon> NOUVEL ARTICLE
+        </button>
+      </div>
+  </div>
+
+  <!-- OLD -->
+    <table mat-table class="container-fluid rounded" matSort [dataSource]="dataSource">
+      <ng-container matColumnDef="libelle">
+        <th mat-header-cell mat-sort-header class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> LIBELLÉ D'ARTICLE </th>
+        <td mat-cell cla *matCellDef="let element"> {{element?.libelleArticle}} </td>
+      </ng-container>
+      <ng-container matColumnDef="categorie">
+        <th mat-header-cell mat-sort-header class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> CATÉGORIE D'ARTICLE </th>
+        <td mat-cell *matCellDef="let element"> {{element?.categorie?.nom}} </td>
+      </ng-container>
+      <ng-container matColumnDef="stock">
+        <th mat-header-cell mat-sort-header class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> NIVEAU D'ALERTE </th>
+        <td mat-cell *matCellDef="let element">
+          {{element?.niveauAlerte}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="qteRestant">
+        <th mat-header-cell mat-sort-header class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> STOCK </th>
+        <td mat-cell *matCellDef="let element">
+          {{element?.stock<0 ? 0:element?.stock}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="marque">
+        <th mat-header-cell mat-sort-header class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> MARQUE </th>
+        <td mat-cell *matCellDef="let element">
+          {{element?.marque?.libelle}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="etat">
+        <th mat-header-cell mat-sort-header class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> ETAT</th>
+        <td mat-cell *matCellDef="let element">
+          <span *ngIf="(element?.niveauAlerte) < (element.stock<0 ? 0:element.stock)" class="badge bg-success rounded-pill">En stock</span>
+          <span *ngIf="element?.niveauAlerte >= (element.stock<0 ? 0:element.stock)" class="badge bg-danger rounded-pill">Insuffisant</span>
+          <!-- <span *ngIf="(element?.niveauAlerte +5) > (element.stock<0 ? 0:element.stock) && (element.stock<0 ? 0:element.stock)<(element?.niveauAlerte)" class="badge bg-warning rounded-pill">Avertissement</span> -->
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell mat-sort-header class="table-header text-dark" style="font-size: small;" *matHeaderCellDef> ACTIONS </th>
+        <td mat-cell class="" *matCellDef="let element">
+          <div class="row">
+            <button matTooltip="Voir" (click)="onSelection(element,'detail')" class="" mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button matTooltip="Modifier" (click)="onSelection(element,'edit')" class="" mat-icon-button color="primary" aria-label="Example icon button with a vertical three dot icon">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button matTooltip="Supprimer" (click)="onDelete(element)" class="" mat-icon-button color="accent" aria-label="Example icon button with a vertical three dot icon">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell border-0" colspan="7">
+          <div class="container-fluid d-flex justify-content-center align-items-center flex-column">
+                <img src="assets/images/not-found.svg" style="width: 200px;height: 200px;" alt="">
+                <h3>Aucune donnée trouvée</h3>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <mat-paginator *ngIf="articles.length!==0" [pageSize]="10" [pageSizeOptions]="[10,25,50, 100]"></mat-paginator>
+  </div>
+  </div>
+</div>
+
+<!-- Edit  -->
+<div class="container-fluid my-5 p-3" *ngIf="currentPage==='edit'">
+  <div class="d-flex container-fluid flex-column justify-content-center align-items-center">
+    <div class="d-flex container align-items-center mb-4">
+      <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="mt-3">MODIFICATION DE L'ARTICLE</h1>
+    </div>
+    <div class="p-3 container d-flex justify-content-center align-items-center">
+      <div class="mat-elevation-z2 p-4">
+       <form #editArticle="ngForm" name="form">
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Libelle</mat-label>
+          <input matInput name="libelleArticle"  [(ngModel)]="article.libelleArticle" required>
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Caractéristique</mat-label>
+          <input matInput name="caractArticle"  [(ngModel)]="article.caracteristique" required>
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Niveau d'Alerte (Quantité)</mat-label>
+          <input matInput type="number" name="niveauAlertArticle" required  [(ngModel)]="article.niveauAlerte">
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Catégorie</mat-label>
+          <mat-select name="affectationArticle" [(ngModel)]="article.categorie" required>
+            <mat-option *ngFor="let cat of categories" [value]="cat">
+              {{cat?.nom}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Marque</mat-label>
+          <mat-select name="marque" [(ngModel)]="article.marque"  required>
+              <mat-option *ngFor="let marque of marques" [value]="marque">{{marque.libelle}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Type</mat-label>
+          <mat-select name="marque" [(ngModel)]="article.type"  required>
+              <mat-option value="CONSOMMABLE">CONSOMMABLE</mat-option>
+              <mat-option value="DURABLE">DURABLE</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Commentaire</mat-label>
+          <textarea matInput  name="stockArticle"  [(ngModel)]="article.commentaire"></textarea>
+        </mat-form-field>
+          <div class="d-flex">
+            <button class="mx-2" (click)="onClear()" mat-raised-button>Annuler</button>
+            <button class="mx-2" [disabled]="editArticle.invalid" (click)="onEditArticle()" mat-raised-button color="primary">Modifier</button>
+          </div>
+       </form>
+      </div>
+    </div>
+  </div>
+  </div>
+
+<!-- Detail Article -->
+
+<div class="container-fluid my-5 mat-elevation-z2 p-3" *ngIf="currentPage==='detail'">
+<div class="d-flex flex-column">
+  <div class="container d-flex align-items-center mb-4">
+    <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="mt-3">DESCRIPTION DE L'ARTICLE</h1>
+  </div>
+  <table class="table table-striped align-middle">
+    <tbody class="">
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Libellé</td>
+        <td>{{ article?.libelleArticle }}</td>
+      </tr>
+
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Caractériqtique</td>
+        <td>{{article?.caracteristique}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Quantité en Stock</td>
+        <td>{{article.stock<0 ? 0:article.stock}}
+          <div *ngIf="article?.niveauAlerte >= (article.stock<0 ? 0:article.stock)" class="spinner-grow text-danger spinner-grow-sm" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="text-danger" style="font-weight: 900;">Niveau d'Alerte(Quantité)</td>
+        <td>{{article?.niveauAlerte}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Commentaire</td>
+        <td *ngIf="article?.commentaire">{{article?.commentaire}}</td>
+        <td *ngIf="!article?.commentaire">Aucun commentaire</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Catégorie</td>
+        <td *ngIf="article?.categorie">{{ article?.categorie?.nom}}</td>
+        <td *ngIf="!article?.categorie">Aucune</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Marque</td>
+        <td *ngIf="article?.marque">{{ article?.marque.libelle}}</td>
+        <td *ngIf="!article?.marque">Aucune</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Type</td>
+        <td>{{article?.type}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Date de Création</td>
+        <td>{{article?.createdAt | date: 'd MMMM y'}}</td>
+      </tr>
+      <tr>
+        <td class="text-sgr" style="font-weight: 900;">Date de Modification</td>
+        <td>{{article?.updateAt | date: 'd MMMM y'}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+<!-- AJOUT -->
+
+<div class="container-fluid my-5 p-3" *ngIf="currentPage==='add'">
+<div class="d-flex container-fluid flex-column justify-content-center align-items-center">
+  <div class="d-flex container mb-4">
+    <button matTooltip="Retour" (click)="onListSelection()"  class="mx-2" mat-mini-fab color="primary" aria-label="Example icon button with a vertical three dot icon">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="mt-1">NOUVEL ARTICLE</h1>
+  </div>
+  <div class="p-3 container d-flex justify-content-center align-items-center">
+    <div class="mat-elevation-z2 p-4">
+     <form #addArticle="ngForm" name="form">
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Libelle</mat-label>
+          <input matInput name="libelleArticle"  [(ngModel)]="article.libelleArticle" required>
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Caractéristique</mat-label>
+          <input matInput name="caractArticle"  [(ngModel)]="article.caracteristique" required>
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Niveau d'Alerte (Quantité)</mat-label>
+          <input matInput type="number" name="niveauAlertArticle" required  [(ngModel)]="article.niveauAlerte">
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Catégorie</mat-label>
+          <mat-select name="affectationArticle"  [(ngModel)]="article.categorie" required>
+            <mat-option *ngFor="let categorie of categories" [value]="categorie">
+              {{categorie?.nom}}
+            </mat-option>
+            <mat-option disabled *ngIf="categories.length===0">Aucune catégorie</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Marque</mat-label>
+          <mat-select name="marque" [(ngModel)]="article.marque"  required>
+              <mat-option *ngFor="let marque of marques" [value]="marque">{{marque.libelle}}</mat-option>
+              <mat-option disabled *ngIf="marques.length===0">aucune marque</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Type</mat-label>
+          <mat-select name="marque" [(ngModel)]="article.type"  required>
+              <mat-option value="CONSOMMABLE">CONSOMMABLE</mat-option>
+              <mat-option value="DURABLE">DURABLE</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="example-full-width container mx-2">
+          <mat-label>Commentaire</mat-label>
+          <textarea matInput  name="stockArticle"  [(ngModel)]="article.commentaire"></textarea>
+        </mat-form-field>
+        <div class="d-flex">
+          <button class="mx-2" mat-raised-button (click)="onClear()">Annuler</button>
+          <button class="mx-2" [disabled]="addArticle.invalid" (click)="onSubmitArticle()" mat-raised-button color="primary">Sauvegarder</button>
+        </div>
+     </form>
+    </div>
+  </div>
+</div>
+</div>
